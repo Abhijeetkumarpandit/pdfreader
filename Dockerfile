@@ -4,10 +4,12 @@ FROM python:3.10-slim
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies (including Poppler)
+# Install system dependencies (including Poppler and Tesseract)
 RUN apt-get update && \
-    apt-get install -y poppler-utils && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y \
+    poppler-utils \
+    tesseract-ocr \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY requirements.txt .
@@ -21,5 +23,3 @@ EXPOSE 5000
 
 # Run the Flask app
 CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
-
-
