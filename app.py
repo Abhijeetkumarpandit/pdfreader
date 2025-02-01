@@ -9,18 +9,32 @@ CORS(app)  # Enable CORS for cross-origin requests
 
 @app.route("/extract_text", methods=["POST"])
 def extract_text():
-    if "pdf" not in request.files:
-        return jsonify({"error": "No PDF uploaded"}), 400
+    try:
+        # Check if PDF file is in the request
+        if "pdf" not in request.files:
+            return jsonify({"error": "No PDF uploaded"}), 400
 
-    pdf_file = request.files["pdf"].read()
-    images = convert_from_bytes(pdf_file)  # Convert PDF to images
+        # Get the PDF file from the request
+        pdf_file = request.files["pdf"].read()
 
-    extracted_text = ""
-    for i, img in enumerate(images):
-        text = pytesseract.image_to_string(img)
-        extracted_text += f"\n--- Page {i+1} ---\n{text}"
+        # Convert the PDF to images
+        images = convert_from_bytes(pdf_file)
 
-    return jsonify({"text": extracted_text})
+        # Initialize extracted text
+        extracted_text = ""
+
+        # Extract text from each image using pytesseract
+        for i, img in enumerate(images):
+            text = pytesseract.image_to_string(img)
+            extracted_text += f"\n--- Page {i+1} ---\n{text}"
+
+        # Return the extracted text as JSON
+        return jsonify({"text": extracted_text})
+
+    except Exception as e:
+        # Log any errors and return a 500 response with the error message
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
+    # Run the app on 0.0.0.0 and port 5000 (or adjust as necessary)
     app.run(host="0.0.0.0", port=5000)
