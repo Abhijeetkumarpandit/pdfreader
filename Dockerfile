@@ -1,21 +1,21 @@
-# Use official Python image
-FROM python:3.10
+# Use an official lightweight Python image
+FROM python:3.10-slim
 
-# Set the working directory
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the requirements file
-COPY requirements.txt .
+# Install system dependencies
+RUN apt-get update && apt-get install -y poppler-utils
 
-# Install dependencies
+# Copy requirements and install dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the application files
+# Copy the rest of the application code
 COPY . .
 
-# Expose the port (Render uses dynamic ports)
-ENV PORT=10000
-EXPOSE $PORT
+# Expose the application port
+EXPOSE 5000
 
-# Start the app
-CMD ["gunicorn", "-b", "0.0.0.0:10000", "app:app"]
+# Command to run the application
+CMD ["python", "app.py"]
