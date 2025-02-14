@@ -1,25 +1,21 @@
-# Use a lightweight Python image
-FROM python:3.10-slim
+# Use official Python image
+FROM python:3.10
 
-# Set working directory
+# Set the working directory
 WORKDIR /app
 
-# Install system dependencies (including Poppler and Tesseract)
-RUN apt-get update && \
-    apt-get install -y \
-    poppler-utils \
-    tesseract-ocr \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Python dependencies
+# Copy the requirements file
 COPY requirements.txt .
+
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the app files
+# Copy the application files
 COPY . .
 
-# Expose the API port
-EXPOSE 5000
+# Expose the port (Render uses dynamic ports)
+ENV PORT=10000
+EXPOSE $PORT
 
-# Run the Flask app
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
+# Start the app
+CMD ["gunicorn", "-b", "0.0.0.0:10000", "app:app"]
